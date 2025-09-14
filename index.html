@@ -300,6 +300,7 @@
     width: 100%;
 }
 
+
 body.dark .hero-image img {
     mix-blend-mode: difference;
     filter: invert(1);
@@ -310,6 +311,11 @@ body.dark .hero-image img {
     .hero-image img {
         max-width: 180px;
     }
+}
+
+button:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
 }
 
     </style>
@@ -428,42 +434,51 @@ const interval = setInterval(updateCountdown, 1000);
 
 
 <script>
-     const form = document.querySelector('.subscribe-form');
+const form = document.querySelector('.subscribe-form');
+const submitButton = form.querySelector('button');
 
 form.addEventListener('submit', async (e) => {
     e.preventDefault();
-    
-    try {
+
+    // Get email value
     const email = form.querySelector('input').value.trim();
 
-    const response = await fetch('https://developersgroupinc.bsite.net/api/Misc/SubscribeLaunch', {
-        method: 'POST',
-        headers: {
-            'Content-Type': 'application/json'
-        },
-        body: JSON.stringify(email) // Send only the email string
-    });
+    // Disable button and show loading text
+    submitButton.disabled = true;
+    submitButton.textContent = 'Please wait...';
 
-    if (!response.ok) {
-        throw new Error(`Error: ${response.status}`);
+    try {
+        const response = await fetch('https://developersgroupinc.bsite.net/api/Misc/SubscribeLaunch', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify(email) // Send only the email string
+        });
+
+        if (!response.ok) {
+            throw new Error(`Error: ${response.status}`);
+        }
+
+        const data = await response.json();
+
+        alert(data.Status.StatusDesc);
+
+        // Clear input field
+        form.querySelector('input').value = '';
+
+        console.log('API Response:', data);
+    } catch (error) {
+        console.error('Error sending email:', error);
+        alert('Sorry, there was a problem subscribing. Please try again later.');
+    } finally {
+        // Re-enable button and reset text
+        submitButton.disabled = false;
+        submitButton.textContent = 'Notify Me';
     }
-
-    const data = await response.json();
-
-    alert(data.Status.StatusDesc);
-
-    form.querySelector('input').value = '';
-
-    console.log('API Response:', data);
-
-} catch (error) {
-    console.error('Error sending email:', error);
-    alert('Sorry, there was a problem subscribing. Please try again later.');
-}
-
 });
+</script>
 
-    </script>
     
     
     <script>
